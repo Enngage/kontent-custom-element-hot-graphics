@@ -1,0 +1,7 @@
+[build]
+  publish = "dist/custom-element-language-copy"
+  command = "npm run build:prod"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

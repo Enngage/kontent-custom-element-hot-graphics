@@ -1,0 +1,47 @@
+<div>
+    Following language variants will be copied from source '<strong>{{ data.fromLanguageCodename }}</strong
+    >' language to '<strong>{{ data.toLanguageCodename }}</strong
+    >' language. <span *ngIf="!overwriteExistingVariants">Existing language variants will be skipped by deep copy.</span
+    ><span *ngIf="overwriteExistingVariants">Existing language variants will be overriden from source variants.</span>
+</div>
+
+<div class="push-top push-bottom">
+    <mat-divider></mat-divider>
+</div>
+
+<div *ngIf="loading" class="push-top">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+
+<div libFlexRow class="push-top" [libFlexRowAlign]="'start'">
+    <div libFlexColumn libFlexFill>
+        <div>
+            Variants to upsert: <strong>{{ contentItems.length }}</strong>
+        </div>
+        <div class="push-top">
+            <mat-chip-list>
+                <mat-chip *ngFor="let contentItem of contentItems">{{ contentItem.name }}</mat-chip>
+            </mat-chip-list>
+        </div>
+    </div>
+
+    <div libFlexColumn libFlexFill>
+        <div>
+            Existing variants in language '{{ data.toLanguageCodename }}':
+            <strong>{{ existingContentItems.length }}</strong>
+        </div>
+        <div class="push-top">
+            <mat-chip-list>
+                <mat-chip *ngFor="let contentItem of existingContentItems">{{ contentItem.name }}</mat-chip>
+            </mat-chip-list>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="infoMessage" class="info-box push-bottom push-top">
+    {{ infoMessage }}
+</div>
+
+<div *ngIf="errorMessage" class="error-box push-bottom push-top">
+    {{ errorMessage }}
+</div>

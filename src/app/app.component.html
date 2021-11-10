@@ -1,0 +1,49 @@
+<div *ngIf="disabled">Deep copy is available only in edit mode.</div>
+
+<div *ngIf="!disabled">
+    <div libFlexRow>
+        <div libFlexColumn>Select language to copy from:</div>
+        <div libFlexColumn libFlexFill>
+            <mat-select [(value)]="selectedLanguage" [placeholder]="'Click here to select language'">
+                <mat-option *ngFor="let language of languages" [value]="language">
+                    {{ language.name }}
+                </mat-option>
+            </mat-select>
+        </div>
+        <div libFlexColumn *ngIf="loading">
+            <mat-spinner [diameter]="20" [color]="'primary'"></mat-spinner>
+        </div>
+        <div libFlexColumn>
+            <button
+                *ngIf="selectedLanguage"
+                [disabled]="false"
+                color="accent"
+                mat-flat-button
+                (click)="openPreviewDialog()"
+            >
+                Preview
+            </button>
+            <button *ngIf="!selectedLanguage" [disabled]="true" mat-flat-button>Preview</button>
+        </div>
+        <div libFlexColumn>
+            <button
+                *ngIf="selectedLanguage"
+                [disabled]="false"
+                color="primary"
+                mat-flat-button
+                (click)="handleRecursiveCopy()"
+            >
+                Recursive copy
+            </button>
+            <button *ngIf="!selectedLanguage" [disabled]="true" mat-flat-button>Recursive copy</button>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="infoMessage" class="info-box push-bottom push-top">
+    {{ infoMessage }}
+</div>
+
+<div *ngIf="errorMessage" class="error-box push-bottom push-top">
+    {{ errorMessage }}
+</div>

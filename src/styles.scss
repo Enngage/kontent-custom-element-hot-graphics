@@ -1,0 +1,223 @@
+@import './app/flex/flex';
+@import './app/positioning/pad';
+@import './app/positioning/push';
+@import './app/positioning/pull';
+
+@include flex();
+@include pad-utilities();
+@include push-utilities();
+@include pull-utilities();
+
+$primaryColor: #db3c00;
+$primaryColorContrast: #fff;
+$secondaryColor: rgb(55, 81, 124);
+$secondaryColorHover: rgb(175, 197, 233);
+$secondaryColorContrast: #525252;
+$linkColor: #db3c00;
+$linkColorHover: #953000;
+$textColor: #525252;
+$textColorLight: #6f6f6f;
+$dividerColor: #e7e7e7;
+$cardBackground: #fff;
+$searchBackground: #d3dff3;
+$errorBox: #db0000;
+$errorBoxText: #fff;
+$infoBox: #317041;
+$infoBoxText: #ffffff;
+
+// material overrides
+.mat-flat-button.mat-primary {
+    background-color: $primaryColor;
+}
+
+.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: $primaryColor;
+}
+
+.mat-progress-bar-buffer {
+    background-color: lighten($primaryColor, 40);
+}
+
+.mat-progress-bar-fill::after {
+    background-color: $primaryColor;
+}
+
+@font-face {
+    font-family: 'GT Walsheim Pro';
+    src: url(assets/fonts/GT-Walsheim-Bold.woff2) format('woff2'),
+        url(assets/fonts/GT-Walsheim-Bold.woff) format('woff'),
+        url(assets/fonts/GT-Walsheim-Bold.eot) format('embedded-opentype'),
+        url(assets/fonts/GT-Walsheim-Bold.ttf) format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: 'block';
+}
+
+@font-face {
+    font-family: 'GT Walsheim Pro';
+    src: url(assets/fonts/GT-Walsheim-Medium.woff2) format('woff2'),
+        url(assets/fonts/GT-Walsheim-Medium.woff) format('woff'),
+        url(assets/fonts/GT-Walsheim-Medium.eot) format('embedded-opentype'),
+        url(assets/fonts/GT-Walsheim-Medium.ttf) format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: block;
+}
+
+@font-face {
+    font-family: 'GT Walsheim Pro';
+    src: url(assets/fonts/GT-Walsheim-Regular.woff2) format('woff2'),
+        url(assets/fonts/GT-Walsheim-Regular.woff) format('woff'),
+        url(assets/fonts/GT-Walsheim-Regular.eot) format('embedded-opentype'),
+        url(assets/fonts/GT-Walsheim-Regular.ttf) format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+
+@font-face {
+    font-family: 'GT Walsheim Pro';
+    src: url(assets/fonts/GT-Walsheim-Light.woff2) format('woff2'),
+        url(assets/fonts/GT-Walsheim-Light.woff) format('woff'),
+        url(assets/fonts/GT-Walsheim-Light.eot) format('embedded-opentype'),
+        url(assets/fonts/GT-Walsheim-Light.ttf) format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: block;
+}
+
+body {
+    font-family: 'GT Walsheim Pro';
+    color: $textColor;
+}
+
+a {
+    color: $linkColor;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.1ch;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+        color: $linkColorHover;
+        text-decoration: underline;
+    }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    margin: 0;
+    font-weight: 500;
+    color: $textColor;
+}
+
+.uploader-wrapper {
+    width: 100%;
+
+    .uploader {
+        height: 300px;
+        width: 450px;
+    }
+}
+
+.divider {
+    border-bottom: solid 1px $dividerColor;
+}
+
+.card {
+    padding: 16px 24px;
+    background-color: $cardBackground;
+    box-shadow: rgb(0 0 0 / 3%) 0px 0px 8px, rgb(16 33 60 / 16%) 0px 8px 14px;
+    border-radius: 8px;
+
+    &.no-pad {
+        padding: 0px;
+    }
+}
+
+.light-text {
+    color: $textColorLight;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.w-cursor-pointer {
+    cursor: pointer;
+}
+
+.search-input {
+    padding: 16px 24px;
+    letter-spacing: 0.07rem;
+    background-color: $searchBackground;
+    width: 100%;
+    font-size: 14px;
+    border: solid 1px $dividerColor;
+    border: 8px;
+    color: $textColorLight;
+
+    &::-webkit-input-placeholder,
+    &:-ms-input-placeholder,
+    &::placeholder {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    &:focus,
+    &:focus-visible {
+        outline: none;
+    }
+}
+
+.primary-button {
+    cursor: pointer;
+    background-color: $primaryColor;
+    color: $primaryColorContrast;
+    padding: 8px 16px;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 500px;
+    border: solid 1px $primaryColor;
+    border-radius: 500px;
+}
+
+.secondary-button {
+    cursor: pointer;
+    text-transform: uppercase;
+    color: $secondaryColor;
+    border: solid 1px $secondaryColorContrast;
+    border-radius: 500px;
+    padding: 8px 16px;
+    font-weight: 500;
+    font-size: 12px;
+    transition: color 250ms cubic-bezier(0.23, 1, 0.32, 1) 50ms;
+
+    &:hover {
+        background-color: $secondaryColorHover;
+    }
+}
+
+.error-box {
+    padding: 8px 16px;
+    background-color: $errorBox;
+    color: $errorBoxText;
+    border-radius: 8px;
+}
+
+.info-box {
+    padding: 8px 16px;
+    background-color: $infoBox;
+    color: $infoBoxText;
+    border-radius: 8px;
+}
