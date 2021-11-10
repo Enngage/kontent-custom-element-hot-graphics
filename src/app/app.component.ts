@@ -1,13 +1,13 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { ContentItemModels, LanguageVariantModels, ManagementClient, SharedModels } from '@kentico/kontent-management';
-import { map } from 'rxjs/operators';
+import { createDeliveryClient, DeliveryClient, IContentItemsContainer } from '@kentico/kontent-delivery';
 import { environment } from 'src/environments/environment';
 import { CoreComponent } from './core/core.component';
-import { IItemsPreviewDialogData, ItemsPreviewDialogComponent } from './dialogs/items-preview-dialog.component';
 import { KontentService } from './services/kontent.service';
-import { ILanguage, ManagementService } from './services/management.service';
+import { DeliveryService } from './services/delivery.service';
+import { map } from 'rxjs';
+import { TrainingHotGraphic } from './models/training_hot_graphic';
+import { TrainingHotGraphicPin } from './models/training_hot_graphic_pin';
 
 @Component({
     selector: 'app-root',
@@ -16,10 +16,8 @@ import { ILanguage, ManagementService } from './services/management.service';
 })
 export class AppComponent extends CoreComponent implements OnInit, AfterViewChecked {
     // config
-    public customElemengHeightPx: number = 500;
     public projectId?: string;
-    public managementApiKey?: string;
-    public overwriteExistingVariants: boolean = false;
+    public previewApiKey?: string;
 
     // base
     public loading: boolean = false;
@@ -30,18 +28,25 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     public disabled: boolean = false;
 
     // context
-    public itemId?: string;
-    public targetLanguageCodename?: string;
+    public itemCodename?: string;
+    public languageCodename?: string;
 
-    // languages
-    public languages: ILanguage[] = [];
-    public selectedLanguage?: ILanguage;
+    private client?: DeliveryClient;
 
-    private client?: ManagementClient;
+    // hot graphics
+    public hotGraphics?: TrainingHotGraphic;
+    public pins: TrainingHotGraphicPin[] = [];
+
+    public get imageUrl(): string | undefined {
+        if (!this.hotGraphics || this.hotGraphics.elements.graphic.value.length === 0) {
+            return undefined;
+        }
+
+        return this.hotGraphics.elements.graphic.value[0].url;
+    }
 
     constructor(
-        private dialog: MatDialog,
-        private managementService: ManagementService,
+        private deliveryService: DeliveryService,
         private kontentService: KontentService,
         cdr: ChangeDetectorRef
     ) {
@@ -53,16 +58,17 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             this.kontentService.initCustomElement(
                 (data) => {
                     this.projectId = data.projectId;
-                    this.managementApiKey = data.apiKey;
-                    this.targetLanguageCodename = data.context.variant.codename;
-                    this.itemId = data.context.item.id;
+                    this.previewApiKey = data.previewApiKey;
+                    this.languageCodename = data.context.variant.codename;
+                    this.itemCodename = data.context.item.codename;
                     this.disabled = data.isDisabled;
-                    this.overwriteExistingVariants = data.overwriteExistingVariants ?? false;
 
-                    this.client = this.getManagementClient(this.projectId, this.managementApiKey);
+                    console.log('top value', data.getElementValue('top'));
 
-                    if (this.client) {
-                        this.initLanguages(this.client);
+                    this.client = this.getDeliveryClient(this.projectId, this.previewApiKey);
+
+                    if (this.client && this.itemCodename && this.languageCodename) {
+                        this.initHotGraphics(this.client, this.itemCodename, this.languageCodename);
                     }
                 },
                 (error) => {
@@ -73,109 +79,86 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             );
         } else {
             this.projectId = this.getDefaultProjectId();
-            this.managementApiKey = this.getDefaultManagementApiKey();
-            this.targetLanguageCodename = this.getDefaultTargetLanguageCodename();
-            this.itemId = this.getDefaultContentItemId();
-            this.overwriteExistingVariants = this.getDefaultOverwriteExistingLanguageVariants();
+            this.previewApiKey = this.getDefaultManagementApiKey();
+            this.languageCodename = this.getDefaultTargetLanguageCodename();
+            this.itemCodename = this.getDefaultContentItemCodename();
 
-            this.client = this.getManagementClient(this.projectId, this.managementApiKey);
+            this.client = this.getDeliveryClient(this.projectId, this.previewApiKey);
 
-            if (this.client) {
-                this.initLanguages(this.client);
+            if (this.client && this.itemCodename && this.languageCodename) {
+                this.initHotGraphics(this.client, this.itemCodename, this.languageCodename);
             }
         }
     }
 
     ngAfterViewChecked(): void {
-        this.updateElementHeight();
-    }
-
-    openPreviewDialog(): void {
-        if (!this.client || !this.selectedLanguage || !this.targetLanguageCodename || !this.itemId) {
-            return;
-        }
-        const data: IItemsPreviewDialogData = {
-            overwriteExistingVariants: this.overwriteExistingVariants,
-            client: this.client,
-            fromLanguageCodename: this.selectedLanguage.codename,
-            linkedItemId: this.itemId,
-            toLanguageCodename: this.targetLanguageCodename
-        };
-
-        this.dialog.open(ItemsPreviewDialogComponent, {
-            width: '1200px',
-            data: data
-        });
-    }
-
-    async handleRecursiveCopy(): Promise<void> {
-        if (this.selectedLanguage && this.client && this.targetLanguageCodename && this.itemId) {
-            try {
-                this.infoMessage = undefined;
-                this.errorMessage = undefined;
-                this.loading = true;
-
-                const createdLanguageVariants: LanguageVariantModels.ContentItemLanguageVariant[] = [];
-                const processedContentItems: ContentItemModels.ContentItem[] = [];
-                const existingContentItems: ContentItemModels.ContentItem[] = [];
-
-                await this.managementService.copyFromLanguageRecursiveAsync({
-                    client: this.client,
-                    linkedItemId: this.itemId,
-                    fromLanguageCodename: this.selectedLanguage.codename,
-                    toLanguageCodename: this.targetLanguageCodename,
-                    createdLanguageVariants: createdLanguageVariants,
-                    contentItemsToCreate: processedContentItems,
-                    isPreview: false,
-                    overwriteLanguageVariants: this.overwriteExistingVariants,
-                    existingContentItems: existingContentItems,
-                    processedContentItems: []
-                });
-
-                this.infoMessage = `Copied '${createdLanguageVariants.length}' language variants from language '${this.selectedLanguage.codename}' to '${this.targetLanguageCodename}'`;
-
-                this.loading = false;
-
-                super.markForCheck();
-            } catch (error) {
-                this.loading = false;
-
-                if (error instanceof SharedModels.ContentManagementBaseKontentError) {
-                    this.errorMessage = error.message;
-                } else {
-                    this.errorMessage = 'Failed to copy from language. See console for detailed error';
-                }
-                super.markForCheck();
-                console.error(error);
-            }
-        }
-    }
-
-    private updateElementHeight(): void {
         // update size of Kontent UI
         if (this.isKontentContext()) {
-            this.kontentService.updateSizeToMatchHtml(this.customElemengHeightPx);
+            // this is required because otherwise the offsetHeight can return 0 in some circumstances
+            // https://stackoverflow.com/questions/294250/how-do-i-retrieve-an-html-elements-actual-width-and-height
+            setTimeout(() => {
+                const htmlElement = document.getElementById('htmlElem');
+                if (htmlElement) {
+                    const height = htmlElement.offsetHeight;
+                    this.kontentService.updateSizeToMatchHtml(height);
+                }
+            }, 50);
         }
     }
 
-    private initLanguages(client: ManagementClient): void {
-        super.subscribeToObservable(
-            this.managementService.getLanguages(client).pipe(
-                map((languages) => {
-                    // filter out target language as it makes no sense to update same languages
-                    this.languages = languages.filter((m) => m.codename !== this.targetLanguageCodename);
+    private startLoading(): void {
+        this.loading = true;
+    }
 
-                    super.markForCheck();
+    private stopLoading(): void {
+        this.loading = false;
+    }
+
+    private initHotGraphics(client: DeliveryClient, itemCodename: string, languageCodename: string): void {
+        this.startLoading();
+        super.subscribeToObservable(
+            this.deliveryService
+                .getHotGrahpics({
+                    client: client,
+                    languageCodename: languageCodename,
+                    itemCodename: itemCodename
                 })
-            )
+                .pipe(
+                    map((response) => {
+                        this.hotGraphics = response.hotGraphics;
+
+                        if (response.hotGraphics) {
+                            this.pins = this.getPins(response.hotGraphics, response.linkedItems);
+                        } else {
+                            this.pins = [];
+                        }
+
+                        this.stopLoading();
+
+                        super.detectChanges();
+                    })
+                )
         );
     }
 
-    private getManagementClient(projectId?: string, apiKey?: string): ManagementClient | undefined {
-        if (projectId && apiKey) {
-            return new ManagementClient({
+    private getPins(hotGraphics: TrainingHotGraphic, linkedItems: IContentItemsContainer): TrainingHotGraphicPin[] {
+        const pins: TrainingHotGraphicPin[] = [];
+        for (const pinCodename of hotGraphics.elements.pins.linkedItemCodenames) {
+            const pin: TrainingHotGraphicPin = linkedItems[pinCodename] as TrainingHotGraphicPin;
+            pins.push(pin);
+        }
+
+        return pins;
+    }
+
+    private getDeliveryClient(projectId?: string, previewApiKey?: string): DeliveryClient | undefined {
+        if (projectId && previewApiKey) {
+            return createDeliveryClient({
                 projectId: projectId,
-                apiKey: apiKey
+                previewApiKey: previewApiKey,
+                defaultQueryConfig: {
+                    usePreviewMode: true
+                }
             });
         }
 
@@ -187,7 +170,15 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             return undefined;
         }
 
-        return environment.kontent.apiKey;
+        return environment.kontent.previewApiKey;
+    }
+
+    private getDefaultTargetLanguageCodename(): string | undefined {
+        if (this.isKontentContext()) {
+            return undefined;
+        }
+
+        return environment.kontent.itemLanguage;
     }
 
     private getDefaultProjectId(): string | undefined {
@@ -198,28 +189,12 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         return environment.kontent.projectId;
     }
 
-    private getDefaultContentItemId(): string | undefined {
+    private getDefaultContentItemCodename(): string | undefined {
         if (this.isKontentContext()) {
             return undefined;
         }
 
-        return environment.kontent.itemId;
-    }
-
-    private getDefaultTargetLanguageCodename(): string | undefined {
-        if (this.isKontentContext()) {
-            return undefined;
-        }
-
-        return environment.kontent.targetLanguageCodename;
-    }
-
-    private getDefaultOverwriteExistingLanguageVariants(): boolean {
-        if (this.isKontentContext()) {
-            return false;
-        }
-
-        return environment.kontent.overwriteExistingLanguageVariants;
+        return environment.kontent.itemCodename;
     }
 
     private isKontentContext(): boolean {

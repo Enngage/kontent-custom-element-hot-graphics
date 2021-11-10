@@ -1,10 +1,9 @@
 export const environment = {
     production: true,
     kontent: {
-        overwriteExistingLanguageVariants: false,
-        itemId: undefined,
-        targetLanguageCodename: undefined,
+        itemLanguage: undefined,
+        itemCodename: undefined,
         projectId: undefined,
-        apiKey: undefined
+        previewApiKey: undefined
     }
 };

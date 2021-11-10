@@ -19,10 +19,10 @@ export interface ICustomElementContext {
 interface IElementInit {
     isDisabled: boolean;
     value?: string;
-    apiKey?: string;
-    overwriteExistingVariants?: boolean;
     projectId?: string;
+    previewApiKey?: string;
     context: ICustomElementContext;
+    getElementValue: (elementCodename: string) => string | undefined;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,13 +39,16 @@ export class KontentService {
                     this.disabledChanged.next(disabled);
                 });
 
+                console.log('element', element);
+                console.log(context);
+
                 onInit({
                     context: context,
                     value: element.value,
-                    overwriteExistingVariants: element.config.overwriteExistingVariants,
                     isDisabled: element.disabled,
-                    apiKey: element.config.apiKey,
-                    projectId: element.config.projectId
+                    projectId: element.config.projectId,
+                    previewApiKey: element.config.previewApiKey,
+                    getElementValue: (elementCodename) => CustomElement.getElementValue(elementCodename)
                 });
 
                 this.initialized = true;

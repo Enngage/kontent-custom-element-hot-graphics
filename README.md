@@ -17,7 +17,7 @@ This custom element for [Kentico Kontent](https://kontent.ai) can be used for de
 
 Netlify has made this easy. If you click the deploy button below, it will guide you through the process of deploying it to Netlify and leave you with a copy of the repository in your account as well.
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Enngage/kontent-custom-element-language-copy)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Enngage/kontent-custom-element-image-pin-selector)
 
 ## Configuration
 
@@ -51,8 +51,8 @@ We have collected notes on how to contribute to this project in [CONTRIBUTING.md
 
 Originally created by [@Enngage](https://github.com/Enngage)
 
-<a href="https://github.com/Enngage/kontent-custom-element-language-copy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Enngage/kontent-custom-element-language-copy" />
+<a href="https://github.com/Enngage/kontent-custom-element-image-pin-selector/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Enngage/kontent-custom-element-image-pin-selector" />
 </a>
 
 ## License
@@ -68,15 +68,15 @@ Originally created by [@Enngage](https://github.com/Enngage)
 
 [last-commit]: https://img.shields.io/github/last-commit/Enngage/kontent-custom-element-wistia?style=for-the-badge
 [contributors-shield]: https://img.shields.io/github/contributors/Enngage/kontent-custom-element-wistia.svg?style=for-the-badge
-[contributors-url]: https://github.com/Enngage/kontent-custom-element-language-copy/graphs/contributors
+[contributors-url]: https://github.com/Enngage/kontent-custom-element-image-pin-selector/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/Enngage/kontent-custom-element-wistia.svg?style=for-the-badge
-[forks-url]: https://github.com/Enngage/kontent-custom-element-language-copy/network/members
+[forks-url]: https://github.com/Enngage/kontent-custom-element-image-pin-selector/network/members
 [stars-shield]: https://img.shields.io/github/stars/Enngage/kontent-custom-element-wistia.svg?style=for-the-badge
-[stars-url]: https://github.com/Enngage/kontent-custom-element-language-copy/stargazers
+[stars-url]: https://github.com/Enngage/kontent-custom-element-image-pin-selector/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Enngage/kontent-custom-element-wistia.svg?style=for-the-badge
-[issues-url]: https://github.com/Enngage/kontent-custom-element-language-copy/issues
+[issues-url]: https://github.com/Enngage/kontent-custom-element-image-pin-selector/issues
 [license-shield]: https://img.shields.io/github/license/Enngage/kontent-custom-element-wistia.svg?style=for-the-badge
-[license-url]: https://github.com/Enngage/kontent-custom-element-language-copy/blob/master/LICENSE
+[license-url]: https://github.com/Enngage/kontent-custom-element-image-pin-selector/blob/master/LICENSE
 [core-shield]: https://img.shields.io/static/v1?label=&message=core%20integration&style=for-the-badge&color=FF5733
 [gallery-shield]: https://img.shields.io/static/v1?label=&message=extension%20gallery&style=for-the-badge&color=51bce0
 [stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge

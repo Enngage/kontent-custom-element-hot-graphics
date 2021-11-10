@@ -118,15 +118,6 @@ h5 {
     color: $textColor;
 }
 
-.uploader-wrapper {
-    width: 100%;
-
-    .uploader {
-        height: 300px;
-        width: 450px;
-    }
-}
-
 .divider {
     border-bottom: solid 1px $dividerColor;
 }
@@ -148,35 +139,8 @@ h5 {
     font-weight: 300;
 }
 
-.full-height {
-    height: 100%;
-}
-
 .w-cursor-pointer {
     cursor: pointer;
-}
-
-.search-input {
-    padding: 16px 24px;
-    letter-spacing: 0.07rem;
-    background-color: $searchBackground;
-    width: 100%;
-    font-size: 14px;
-    border: solid 1px $dividerColor;
-    border: 8px;
-    color: $textColorLight;
-
-    &::-webkit-input-placeholder,
-    &:-ms-input-placeholder,
-    &::placeholder {
-        font-size: 14px;
-        opacity: 0.8;
-    }
-
-    &:focus,
-    &:focus-visible {
-        outline: none;
-    }
 }
 
 .primary-button {
@@ -220,4 +184,42 @@ h5 {
     background-color: $infoBox;
     color: $infoBoxText;
     border-radius: 8px;
+}
+
+.w-pin-image {
+    img {
+        width: 100%;
+        display: block;
+    }
+
+    .box {
+        width: 8%;
+        height: 8%;
+        background-image: url(http://www.clker.com/cliparts/W/0/g/a/W/E/map-pin-red.svg);
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        position: absolute;
+    }
+
+    #pin-1 {
+        top: 40%;
+        left: 65%;
+    }
+
+    .pin-text {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 65%;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .pin-text h3 {
+        color: $primaryColorContrast;
+        background-color: $primaryColor;
+        padding: 6px 12px;
+        border-radius: 25px;
+    }
 }

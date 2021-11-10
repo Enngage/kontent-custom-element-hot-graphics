@@ -5,11 +5,10 @@
 export const environment = {
     production: false,
     kontent: {
-        overwriteExistingLanguageVariants: true,
-        itemId: '66bdb76d-3199-4aef-b297-ee3ea6258266',
-        targetLanguageCodename: 'cs-CZ',
-        projectId: '4a85f693-5438-01cb-6fd1-2d3013749434',
-        apiKey: 'ew0KICAiYWxnIjogIkhTMjU2IiwNCiAgInR5cCI6ICJKV1QiDQp9.ew0KICAianRpIjogIjdhMDI1M2I0MzkyNzQwOTQ5NTlmNWJiZDdiZjY4Y2YzIiwNCiAgImlhdCI6ICIxNjM1NDkyMTY0IiwNCiAgImV4cCI6ICIxOTgxMDkyMTY0IiwNCiAgInByb2plY3RfaWQiOiAiNGE4NWY2OTM1NDM4MDFjYjZmZDEyZDMwMTM3NDk0MzQiLA0KICAidmVyIjogIjIuMS4wIiwNCiAgInVpZCI6ICJ1c3JfMHZRWUJDcUF2cm5vNXJpZkhuaVlFRyIsDQogICJhdWQiOiAibWFuYWdlLmtlbnRpY29jbG91ZC5jb20iDQp9.xwcV-Zn7luQkjCkPQR1o43OfsEybv4lDZxqyhM6eyrI'
+        itemLanguage: 'default',
+        itemCodename: 'hot_graphic_test',
+        projectId: '38e7fb48-3da9-009e-9413-a4502ee004c4',
+        previewApiKey: 'ew0KICAiYWxnIjogIkhTMjU2IiwNCiAgInR5cCI6ICJKV1QiDQp9.ew0KICAianRpIjogImNjOGZkZGFhMGUyZTRjOWRhOWEyODE5Mjk4ZDIyMTM1IiwNCiAgImlhdCI6ICIxNjM0MDQzOTg3IiwNCiAgImV4cCI6ICIxOTc5NjQzOTg3IiwNCiAgInByb2plY3RfaWQiOiAiMzhlN2ZiNDgzZGE5MDA5ZTk0MTNhNDUwMmVlMDA0YzQiLA0KICAidmVyIjogIjEuMC4wIiwNCiAgImF1ZCI6ICJwcmV2aWV3LmRlbGl2ZXIua2VudGljb2Nsb3VkLmNvbSINCn0.tsr1QYNc9Zq5Cdg7qJB54eHTDHjTK_zVYkttKZN36_U'
     }
 };
 

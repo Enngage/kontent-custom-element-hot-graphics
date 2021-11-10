@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/custom-element-language-copy"
+  publish = "dist/custom-element-image-pin-selector"
   command = "npm run build:prod"
 [[redirects]]
   from = "/*"

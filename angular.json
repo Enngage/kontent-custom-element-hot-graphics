@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "custom-element-language-copy": {
+    "custom-element-image-pin-selector": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/custom-element-language-copy",
+            "outputPath": "dist/custom-element-image-pin-selector",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -74,18 +74,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "custom-element-language-copy:build"
+            "browserTarget": "custom-element-image-pin-selector:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "custom-element-language-copy:build:production"
+              "browserTarget": "custom-element-image-pin-selector:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "custom-element-language-copy:build"
+            "browserTarget": "custom-element-image-pin-selector:build"
           }
         },
         "test": {
@@ -106,33 +106,20 @@
             "scripts": []
           }
         },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "tsconfig.app.json",
-              "tsconfig.spec.json",
-              "e2e/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "custom-element-language-copy:serve"
+            "devServerTarget": "custom-element-image-pin-selector:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "custom-element-language-copy:serve:production"
+              "devServerTarget": "custom-element-image-pin-selector:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "custom-element-language-copy"
+  "defaultProject": "custom-element-image-pin-selector"
 }
