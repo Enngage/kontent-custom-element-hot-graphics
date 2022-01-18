@@ -1,19 +1,60 @@
-<div *ngIf="disabled">Deep copy is available only in edit mode.</div>
+<div *ngIf="disabled">Pin selector is available only in edit mode</div>
 
 <div *ngIf="!disabled">
     <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
-    <div *ngIf="hotGraphics && imageUrl" class="w-pin-image">
-        <img [alt]="hotGraphics.system.name" [src]="imageUrl" />
-        <div
-            class="box"
-            [style.top]="pin.elements.top.value + '%'"
-            [style.left]="pin.elements.left.value + '%'"
-            *ngFor="let pin of pins"
-        >
-            <div class="pin-text">
-                <h3>{{ pin.elements.title.value }}</h3>
+    <div>
+        <button mat-flat-button [color]="'primary'" (click)="handleSelectAsset()">Select asset</button>
+    </div>
+
+    <div libFlexRow class="push-top">
+        <div libFlexColumn libFlexFill>
+            <mat-form-field appearance="outline">
+                <mat-label>Asset Id</mat-label>
+                <input [formControl]="assetTextControl" matInput type="text" />
+                <button
+                    *ngIf="assetTextControl.value"
+                    matSuffix
+                    mat-icon-button
+                    aria-label="Clear"
+                    (click)="clearAsset()"
+                >
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div libFlexRow>
+        <div libFlexColumn>
+            <mat-form-field appearance="outline">
+                <mat-label>Top</mat-label>
+                <input [formControl]="topControl" matInput type="text" />
+                <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
+        </div>
+        <div libFlexColumn>
+            <mat-form-field appearance="outline">
+                <mat-label>Left</mat-label>
+                <input [formControl]="leftControl" matInput type="text" />
+                <mat-icon matSuffix>percent</mat-icon>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="push-top">
+        <div *ngIf="assetUrl">
+            <div class="w-pin-image">
+                <img [src]="assetUrl" />
+                <div class="box" [style.top]="pin.top + '%'" [style.left]="pin.left + '%'" *ngFor="let pin of pins">
+                    <div class="pin-text" *ngIf="showPinText">
+                        <h3>Pin</h3>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div *ngIf="!assetUrl">
+            <em>Asset is not selected</em>
         </div>
     </div>
 </div>

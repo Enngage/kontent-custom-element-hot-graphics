@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { from, map, Observable, Subject } from 'rxjs';
 
 declare const CustomElement: any;
 
@@ -19,10 +19,20 @@ export interface ICustomElementContext {
 interface IElementInit {
     isDisabled: boolean;
     value?: string;
-    projectId?: string;
-    previewApiKey?: string;
     context: ICustomElementContext;
     getElementValue: (elementCodename: string) => string | undefined;
+}
+
+interface AssetReference {
+    id: string;
+}
+
+export interface IAsset {
+    id: string;
+    url: string;
+    size: number;
+    name: string;
+    fileName: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,26 +45,27 @@ export class KontentService {
     initCustomElement(onInit: (data: IElementInit) => void, onError: (error: any) => void): void {
         try {
             CustomElement.init((element: any, context: ICustomElementContext) => {
+                this.initialized = true;
+
                 CustomElement.onDisabledChanged((disabled: boolean) => {
                     this.disabledChanged.next(disabled);
                 });
-
-                console.log('element', element);
-                console.log(context);
 
                 onInit({
                     context: context,
                     value: element.value,
                     isDisabled: element.disabled,
-                    projectId: element.config.projectId,
-                    previewApiKey: element.config.previewApiKey,
                     getElementValue: (elementCodename) => CustomElement.getElementValue(elementCodename)
                 });
-
-                this.initialized = true;
             });
         } catch (error) {
             onError(error);
+        }
+    }
+
+    setValue(value: string | null): void {
+        if (this.initialized) {
+            CustomElement.setValue(value);
         }
     }
 
@@ -62,5 +73,48 @@ export class KontentService {
         if (this.initialized) {
             CustomElement.setHeight(height);
         }
+    }
+
+    getAssetDetails(assetId: string): Observable<IAsset | null> | null {
+        if (this.initialized) {
+            const selectAssetPromise = CustomElement.getAssetDetails([assetId]) as Promise<IAsset[] | null>;
+
+            if (selectAssetPromise) {
+                return from(selectAssetPromise).pipe(
+                    map((result) => {
+                        if (result && result.length) {
+                            return result[0];
+                        }
+
+                        return null;
+                    })
+                );
+            }
+        }
+
+        return null;
+    }
+
+    selectAsset(): Observable<string | null> | null {
+        if (this.initialized) {
+            const selectAssetPromise = CustomElement.selectAssets({
+                allowMultiple: false,
+                fileType: 'images'
+            }) as Promise<AssetReference[] | null>;
+
+            if (selectAssetPromise) {
+                return from(selectAssetPromise).pipe(
+                    map((result) => {
+                        if (result && result.length) {
+                            return result[0].id;
+                        }
+
+                        return null;
+                    })
+                );
+            }
+        }
+
+        return null;
     }
 }

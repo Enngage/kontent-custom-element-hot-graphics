@@ -187,39 +187,38 @@ h5 {
 }
 
 .w-pin-image {
+    position: relative;
+
     img {
         width: 100%;
         display: block;
     }
 
     .box {
-        width: 8%;
-        height: 8%;
-        background-image: url(http://www.clker.com/cliparts/W/0/g/a/W/E/map-pin-red.svg);
-        background-position: top center;
-        background-repeat: no-repeat;
-        background-size: contain;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: $primaryColor;
+        border: solid 2px $textColor;
         position: absolute;
-    }
-
-    #pin-1 {
-        top: 40%;
-        left: 65%;
     }
 
     .pin-text {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        left: 65%;
+        left: 35px;
         white-space: nowrap;
         display: block;
     }
 
     .pin-text h3 {
+        font-size: 14px;
+        background-color: $primaryColor;
+        border: solid 2px $textColor;
         color: $primaryColorContrast;
         background-color: $primaryColor;
         padding: 6px 12px;
-        border-radius: 25px;
+        border-radius: 15px;
     }
 }

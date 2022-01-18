@@ -1,8 +1,7 @@
 export const environment = {
     production: true,
     kontent: {
-        itemLanguage: undefined,
-        itemCodename: undefined,
+        assetId: undefined,
         projectId: undefined,
         previewApiKey: undefined
     }

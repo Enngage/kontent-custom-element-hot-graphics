@@ -1,13 +1,15 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { createDeliveryClient, DeliveryClient, IContentItemsContainer } from '@kentico/kontent-delivery';
 import { environment } from 'src/environments/environment';
 import { CoreComponent } from './core/core.component';
 import { KontentService } from './services/kontent.service';
-import { DeliveryService } from './services/delivery.service';
 import { map } from 'rxjs';
-import { TrainingHotGraphic } from './models/training_hot_graphic';
-import { TrainingHotGraphicPin } from './models/training_hot_graphic_pin';
+import { FormControl } from '@angular/forms';
+
+export interface IPin {
+    top: number;
+    left: number;
+}
 
 @Component({
     selector: 'app-root',
@@ -15,61 +17,49 @@ import { TrainingHotGraphicPin } from './models/training_hot_graphic_pin';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent extends CoreComponent implements OnInit, AfterViewChecked {
-    // config
-    public projectId?: string;
-    public previewApiKey?: string;
-
     // base
     public loading: boolean = false;
     public errorMessage?: string;
     public infoMessage?: string;
+    public readonly showPinText: boolean = true;
 
     // state
     public disabled: boolean = false;
 
-    // context
-    public itemCodename?: string;
-    public languageCodename?: string;
+    //  asset
+    public assetUrl?: string;
 
-    private client?: DeliveryClient;
-
-    // hot graphics
-    public hotGraphics?: TrainingHotGraphic;
-    public pins: TrainingHotGraphicPin[] = [];
-
-    public get imageUrl(): string | undefined {
-        if (!this.hotGraphics || this.hotGraphics.elements.graphic.value.length === 0) {
-            return undefined;
+    // pins
+    public get pins(): IPin[] {
+        if (this.topControl.value && this.leftControl) {
+            return [
+                {
+                    left: this.leftControl.value,
+                    top: this.topControl.value
+                }
+            ];
         }
 
-        return this.hotGraphics.elements.graphic.value[0].url;
+        return [];
     }
 
-    constructor(
-        private deliveryService: DeliveryService,
-        private kontentService: KontentService,
-        cdr: ChangeDetectorRef
-    ) {
+    public assetTextControl: FormControl = new FormControl();
+    public topControl: FormControl = new FormControl(50);
+    public leftControl: FormControl = new FormControl(50);
+
+    constructor(private kontentService: KontentService, cdr: ChangeDetectorRef) {
         super(cdr);
     }
 
     ngOnInit(): void {
+        this.subscribeToFormControlChanges();
+
         if (this.isKontentContext()) {
             this.kontentService.initCustomElement(
                 (data) => {
-                    this.projectId = data.projectId;
-                    this.previewApiKey = data.previewApiKey;
-                    this.languageCodename = data.context.variant.codename;
-                    this.itemCodename = data.context.item.codename;
                     this.disabled = data.isDisabled;
 
-                    console.log('top value', data.getElementValue('top'));
-
-                    this.client = this.getDeliveryClient(this.projectId, this.previewApiKey);
-
-                    if (this.client && this.itemCodename && this.languageCodename) {
-                        this.initHotGraphics(this.client, this.itemCodename, this.languageCodename);
-                    }
+                    this.assetTextControl.setValue(data.value);
                 },
                 (error) => {
                     console.error(error);
@@ -78,16 +68,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                 }
             );
         } else {
-            this.projectId = this.getDefaultProjectId();
-            this.previewApiKey = this.getDefaultManagementApiKey();
-            this.languageCodename = this.getDefaultTargetLanguageCodename();
-            this.itemCodename = this.getDefaultContentItemCodename();
-
-            this.client = this.getDeliveryClient(this.projectId, this.previewApiKey);
-
-            if (this.client && this.itemCodename && this.languageCodename) {
-                this.initHotGraphics(this.client, this.itemCodename, this.languageCodename);
-            }
+            this.assetTextControl.setValue(environment.kontent.assetId);
         }
     }
 
@@ -106,95 +87,83 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         }
     }
 
-    private startLoading(): void {
-        this.loading = true;
+    clearAsset(): void {
+        this.assetTextControl.setValue(null);
+        this.assetUrl = undefined;
     }
 
-    private stopLoading(): void {
-        this.loading = false;
+    clearTop(): void {
+        this.topControl.setValue(null);
     }
 
-    private initHotGraphics(client: DeliveryClient, itemCodename: string, languageCodename: string): void {
-        this.startLoading();
-        super.subscribeToObservable(
-            this.deliveryService
-                .getHotGrahpics({
-                    client: client,
-                    languageCodename: languageCodename,
-                    itemCodename: itemCodename
-                })
-                .pipe(
-                    map((response) => {
-                        this.hotGraphics = response.hotGraphics;
+    clearLeft(): void {
+        this.leftControl.setValue(null);
+    }
 
-                        if (response.hotGraphics) {
-                            this.pins = this.getPins(response.hotGraphics, response.linkedItems);
-                        } else {
-                            this.pins = [];
+    handleSelectAsset(): void {
+        const obs = this.kontentService.selectAsset();
+
+        if (obs) {
+            super.subscribeToObservable(
+                obs.pipe(
+                    map((assetId) => {
+                        if (assetId) {
+                            this.assetTextControl.setValue(assetId);
+                            super.markForCheck();
                         }
-
-                        this.stopLoading();
-
-                        super.detectChanges();
                     })
                 )
+            );
+        }
+    }
+
+    private subscribeToFormControlChanges(): void {
+        super.subscribeToObservable(
+            this.topControl.valueChanges.pipe(
+                map((value) => {
+                    super.markForCheck();
+                })
+            )
+        );
+
+        super.subscribeToObservable(
+            this.leftControl.valueChanges.pipe(
+                map((value) => {
+                    super.markForCheck();
+                })
+            )
+        );
+
+        super.subscribeToObservable(
+            this.assetTextControl.valueChanges.pipe(
+                map((value) => {
+                    this.assetUrl = undefined;
+                    this.kontentService.setValue(value ?? null);
+
+                    if (value) {
+                        this.initAssetDetails(value);
+                    }
+                    super.markForCheck();
+                })
+            )
         );
     }
 
-    private getPins(hotGraphics: TrainingHotGraphic, linkedItems: IContentItemsContainer): TrainingHotGraphicPin[] {
-        const pins: TrainingHotGraphicPin[] = [];
-        for (const pinCodename of hotGraphics.elements.pins.linkedItemCodenames) {
-            const pin: TrainingHotGraphicPin = linkedItems[pinCodename] as TrainingHotGraphicPin;
-            pins.push(pin);
+    private initAssetDetails(assetId: string): void {
+        const obs = this.kontentService.getAssetDetails(assetId);
+
+        if (obs) {
+            super.subscribeToObservable(
+                obs.pipe(
+                    map((asset) => {
+                        if (asset) {
+                            this.assetUrl = asset.url;
+                            super.markForCheck();
+                        }
+                    })
+                )
+            );
         }
-
-        return pins;
-    }
-
-    private getDeliveryClient(projectId?: string, previewApiKey?: string): DeliveryClient | undefined {
-        if (projectId && previewApiKey) {
-            return createDeliveryClient({
-                projectId: projectId,
-                previewApiKey: previewApiKey,
-                defaultQueryConfig: {
-                    usePreviewMode: true
-                }
-            });
-        }
-
-        return undefined;
-    }
-
-    private getDefaultManagementApiKey(): string | undefined {
-        if (this.isKontentContext()) {
-            return undefined;
-        }
-
-        return environment.kontent.previewApiKey;
-    }
-
-    private getDefaultTargetLanguageCodename(): string | undefined {
-        if (this.isKontentContext()) {
-            return undefined;
-        }
-
-        return environment.kontent.itemLanguage;
-    }
-
-    private getDefaultProjectId(): string | undefined {
-        if (this.isKontentContext()) {
-            return undefined;
-        }
-
-        return environment.kontent.projectId;
-    }
-
-    private getDefaultContentItemCodename(): string | undefined {
-        if (this.isKontentContext()) {
-            return undefined;
-        }
-
-        return environment.kontent.itemCodename;
     }
 
     private isKontentContext(): boolean {
