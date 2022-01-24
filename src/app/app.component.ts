@@ -21,7 +21,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     public loading: boolean = false;
     public errorMessage?: string;
     public infoMessage?: string;
-    public readonly showPinText: boolean = true;
+    public readonly showPinText: boolean = false;
 
     // state
     public disabled: boolean = false;
