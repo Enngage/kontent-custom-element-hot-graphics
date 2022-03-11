@@ -24,6 +24,7 @@ $errorBox: #db0000;
 $errorBoxText: #fff;
 $infoBox: #317041;
 $infoBoxText: #ffffff;
+$pinColor: #F05A22;
 
 // material overrides
 .mat-flat-button.mat-primary {
@@ -194,14 +195,18 @@ h5 {
         display: block;
     }
 
-    .box {
+    .pin-icon {
         width: 24px;
         height: 24px;
+        fill: #fff;
+    }
+
+    .box {
         border-radius: 50%;
-        background-color: $primaryColor;
-        border: solid 2px $textColor;
+        background-color: $pinColor;
         position: absolute;
-        padding: 8px 48px;
+        padding: 1rem;
+        font-size: 16px;
     }
 
     .pin-text {
