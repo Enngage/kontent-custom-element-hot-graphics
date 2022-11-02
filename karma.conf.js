@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/custom-element-image-pin-selector'),
+      dir: require('path').join(__dirname, './coverage/custom-element-hot-graphics'),
       subdir: '.',
       reporters: [
         { type: 'html' },

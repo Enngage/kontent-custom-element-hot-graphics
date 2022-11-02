@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppComponent } from './app.component';
 import { AppFlexModule } from './flex';
@@ -16,7 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
     declarations: [AppComponent, LineClampDirective],
     imports: [
         BrowserModule,
-        HttpClientModule,
         AppFlexModule,
         BrowserAnimationsModule,
         MatProgressBarModule,
@@ -24,7 +23,8 @@ import { MatIconModule } from '@angular/material/icon';
         ReactiveFormsModule,
         MatInputModule,
         MatIconModule,
-        MatButtonModule
+        MatButtonModule,
+        DragDropModule
     ],
     providers: [],
     bootstrap: [AppComponent]
