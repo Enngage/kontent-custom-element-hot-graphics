@@ -11,7 +11,7 @@
 
 ## Description
 
-This custom element for [Kentico Kontent](https://kontent.ai) can be used for deep `copy from language` feature. This means it will copy from language current item & all its linked items recursively.
+This custom element for [Kentico Kontent](https://kontent.ai) can be used to select PIN corrdinates and preview them.
 
 ## Quick Deploy
 
@@ -21,25 +21,11 @@ Netlify has made this easy. If you click the deploy button below, it will guide 
 
 ## Configuration
 
-You will need to add the custom element to a content type filling in the hosted code URL and the following JSON parameters:
-
-```json
-{
-   // required
-    "projectId": "<YOUR PROJECT ID>",
-    "apiKEy": "<YOUR MANAGEMENT API KEY>",
-    // optional
-    "overwriteExistingVariants": true | false,
-}
-```
-
-## Demo
-
-![Demo Animation][product-demo]
+No configuration required
 
 ## What is Saved
 
-This custom element does not save any value
+Nothing is saved
 
 ## Development
 
