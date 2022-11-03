@@ -53,7 +53,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
     // state
     public disabled: boolean = false;
-    private initPins: boolean = false;
+    private initPinsAfterImageIsLoaded: boolean = false;
 
     @ViewChild('imageElem') imageElementRef?: ElementRef;
 
@@ -72,6 +72,10 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
                         this.assetId = storedData.assetId;
                         this.assetUrl = storedData.assetUrl;
+                        this.pins = storedData.pins;
+
+                        // needed to properly calculate coordinates after image is loaded
+                        this.initPinsAfterImageIsLoaded = true;
                     }
                 },
                 (error) => {
@@ -101,6 +105,15 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         }
     }
 
+    handleImageLoaded(): void {
+        if (this.initPinsAfterImageIsLoaded && this.imageElementRef) {
+            this.initPinsAfterImageIsLoaded = false;
+
+            // pin coordinates need to be recalculated after image is loaded and we know exact dimensions
+            super.markForCheck();
+        }
+    }
+
     addNewPin(): void {
         if (this.imageElementRef) {
             const imageWidth = this.imageElementRef.nativeElement.offsetWidth;
@@ -112,15 +125,18 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             this.pins.push({
                 y: y,
                 x: x,
-                text: 'n/a',            
+                text: 'n/a',
                 imageWidth: imageWidth,
                 imageHeight: imageHeight
             });
         }
+
+        this.storeCurrentValues();
     }
 
     deletePin(index: number): void {
         this.pins.splice(index, 1);
+        this.storeCurrentValues();
     }
 
     dragEnded(event: CdkDragEnd, pin: IElementStoredPin): void {
@@ -132,12 +148,16 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
             pin.imageWidth = this.imageElementRef.nativeElement.offsetWidth;
             pin.imageHeight = this.imageElementRef.nativeElement.offsetHeight;
+
+            this.storeCurrentValues();
         }
     }
 
     clearAsset(): void {
         this.assetId = undefined;
         this.assetUrl = undefined;
+
+        this.storeCurrentValues();
     }
 
     handleSelectAsset(): void {
@@ -188,7 +208,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             const valueToStore: IElementStoredValue = {
                 assetId: this.assetId,
                 assetUrl: this.assetUrl,
-                pins: []
+                pins: this.pins
             };
             return JSON.stringify(valueToStore);
         }

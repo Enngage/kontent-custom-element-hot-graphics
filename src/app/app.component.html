@@ -34,7 +34,7 @@
             <div libFlexRow class="push-top-lg" [libFlexRowAlign]="'center'">
                 <div libFlexColumn libFlexFill>
                     <div class="w-pin-image" *ngIf="!disabled">
-                        <img [src]="assetUrl" #imageElem />
+                        <img [src]="assetUrl" #imageElem  (load)="handleImageLoaded()"/>
                         <div class="box editable" [style.top]="0 + '%'" [style.left]="0 + '%'" #pinElem
                             *ngFor="let pin of pins; let index = index" cdkDragBoundary=".w-pin-image" cdkDrag
                             (cdkDragEnded)="dragEnded($event, pin)" [cdkDragFreeDragPosition]="calculateFreeDragPoint(pin, imageElem)">
