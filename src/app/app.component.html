@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div libFlexRow>
+    <div libFlexRow class="push-top">
         <div libFlexColumn libFlexFill>
             <mat-form-field appearance="outline">
                 <mat-label>Asset Url</mat-label>
@@ -35,13 +35,14 @@
                 <button mat-flat-button [color]="'accent'" (click)="addNewPin()">Add pin</button>
             </div>
 
-            <div libFlexRow class="push-top">
+            <div libFlexRow class="push-top-lg" [libFlexRowAlign]="'center'">
                 <div libFlexColumn libFlexFill>
-                    <div class="w-pin-image" style="width: 500px; height: 500px">
-                        <img [src]="assetUrl" #pinImageElement />
-                        <div class="box" [style.top]="50 + '%'" [style.left]="50 + '%'"
+                    <div class="w-pin-image" *ngIf="!disabled">
+                        <img [src]="assetUrl" #imageElem />
+                        <div class="box editable" [style.top]="0 + '%'" [style.left]="0 + '%'" #pinElem
                             *ngFor="let pin of pins; let index = index" cdkDragBoundary=".w-pin-image" cdkDrag
-                            (cdkDragEnded)="dragEnded($event, pin)">
+                            (cdkDragEnded)="dragEnded($event, pin)"
+                            [cdkDragFreeDragPosition]="getFreeDragPoint(pin, imageElem, pinElem)">
                             <div class="pin-icon">
                                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -59,11 +60,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div libFlexColumn libFlexFill>
-                    <div class="w-pin-image" style="width: 500px; height: 500px">
-                        <img [src]="assetUrl" #pinImageElement />
-                        <div class="box" [style.top]="pin.y + '%'" [style.left]="pin.x + '%'"
+
+                    <div class="w-pin-image" *ngIf="disabled">
+                        <img [src]="assetUrl" #imageElem />
+                        <div class="box transform-50" [style.top]="calculateOffsetForPin(pin, imageElem).top + 'px'"
+                            [style.left]="calculateOffsetForPin(pin, imageElem).left + 'px'"
                             *ngFor="let pin of pins; let index = index">
                             <div class="pin-icon">
                                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
@@ -85,18 +86,29 @@
                 </div>
             </div>
 
-
-            <div class="push-top" *ngIf="pins.length">
+            <div class="push-top-md" *ngIf="pins.length">
                 <div libFlexRow [libFlexRowAlign]="'center'" [libFlexRowGap]="'16px'" [class.push-top]="!first"
                     *ngFor="let pin of pins; let index = index; let first = first">
                     <div libFlexColumn [libFlexSize]="'20px'">
                         <h2>{{ index + 1 }}.</h2>
                     </div>
                     <div libFlexColumn libFlexFill>
-                        {{ pin.text }}
+                        <ng-container *ngIf="!disabled">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Pin text</mat-label>
+                                <input matInput type="text" [(ngModel)]="pin.text">
+                                <button *ngIf="pin.text" matSuffix mat-icon-button aria-label="Clear"
+                                    (click)="pin.text=''">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </ng-container>
+                        <ng-container *ngIf="disabled">
+                            {{ pin.text }}
+                        </ng-container>
                     </div>
                     <div libFlexColumn>
-                        <strong> (x: {{pin.x}} , y: {{ pin.y}})</strong>
+                        <strong> (x: {{roundCoordinate(pin.x)}} , y: {{ roundCoordinate(pin.y)}})</strong>
                     </div>
                     <div libFlexColumn>
                         <button (click)="deletePin(index)" mat-icon-button>

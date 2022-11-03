@@ -12,12 +12,15 @@ import { CoreComponent } from './core/core.component';
 import { KontentService } from './services/kontent.service';
 import { map } from 'rxjs';
 import { UntypedFormControl } from '@angular/forms';
-import { CdkDragEnd } from '@angular/cdk/drag-drop';
+import { CdkDragEnd, Point } from '@angular/cdk/drag-drop';
 
 export interface IPin {
     x: number;
     y: number;
     text: string;
+    imageWidth: number;
+    imageHeight: number;
+    freeDragPoint: Point
 }
 
 @Component({
@@ -26,6 +29,11 @@ export interface IPin {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent extends CoreComponent implements OnInit, AfterViewChecked {
+
+    // default pin state
+    private readonly pinHeight: number = 40;
+    private readonly pinWidth: number = 40;
+
     // base
     public loading: boolean = false;
     public errorMessage?: string;
@@ -43,7 +51,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
     public assetTextControl: UntypedFormControl = new UntypedFormControl();
 
-    @ViewChild('pinImageElement') pinImageElement?: ElementRef;
+    @ViewChild('imageElem') imageElementRef?: ElementRef;
 
     constructor(private kontentService: KontentService, cdr: ChangeDetectorRef) {
         super(cdr);
@@ -68,11 +76,6 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         } else {
             this.assetTextControl.setValue('');
             this.assetUrl = environment.kontent.defaultImageUrl;
-            this.pins.push({
-                y: 50,
-                x: 50,
-                text: 'Placeholder text'
-            });
         }
     }
 
@@ -92,11 +95,16 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     addNewPin(): void {
-        this.pins.push({
-            y: 50,
-            x: 50,
-            text: 'n/a'
-        });
+        if (this.imageElementRef) {
+            this.pins.push({
+                y: this.pinHeight/ 2,
+                x: this.pinWidth / 2,
+                text: 'n/a',
+                freeDragPoint: this.getFreeDragPoint()
+                imageWidth: this.imageElementRef.nativeElement.offsetWidth,
+                imageHeight: this.imageElementRef.nativeElement.offsetHeight
+            });
+        }
     }
 
     deletePin(index: number): void {
@@ -104,15 +112,29 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     dragEnded(event: CdkDragEnd, pin: IPin): void {
-        if (this.pinImageElement) {
-            const percentage = this.calculatePercentage(event, this.pinImageElement);
-            const freeDragPosition = event.source.getFreeDragPosition();
+        if (this.imageElementRef) {
+            const percentage = this.calculatePinCoordinatesAfterDrop(event);
+
             pin.x = percentage.x;
             pin.y = percentage.y;
 
-            console.log('percentage', percentage);
-            console.log(event);
+            pin.imageWidth = this.imageElementRef.nativeElement.offsetWidth;
+            pin.imageHeight = this.imageElementRef.nativeElement.offsetHeight;
         }
+    }
+
+    getFreeDragPoint(pin: IPin, imageRef: HTMLImageElement, pinRef: HTMLDivElement): Point {
+        const heightOfPin: number = pinRef.offsetHeight;
+        const widthOfPin: number = pinRef.offsetWidth;
+
+        const point: Point = {
+            y: (imageRef.offsetHeight * pin.y) / pin.imageHeight - heightOfPin / 2,
+            x: (imageRef.offsetWidth * pin.x) / pin.imageWidth - widthOfPin / 2
+        };
+
+        console.log('test 1', pin, imageRef, pinRef);
+
+        return point;
     }
 
     clearAsset(): void {
@@ -135,6 +157,17 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                 )
             );
         }
+    }
+
+    calculateOffsetForPin(pin: IPin, imageRef: HTMLImageElement): { top: number; left: number } {
+        return {
+            top: (imageRef.offsetHeight * pin.y) / pin.imageHeight,
+            left: (imageRef.offsetWidth * pin.x) / pin.imageWidth
+        };
+    }
+
+    roundCoordinate(coordinate: number): string {
+        return coordinate.toFixed(2);
     }
 
     private subscribeToFormControlChanges(): void {
@@ -174,59 +207,18 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         return environment.production;
     }
 
-    private calculatePercentage(event: CdkDragEnd, pinImage: ElementRef): { x: number; y: number } {
+    private calculatePinCoordinatesAfterDrop(event: CdkDragEnd): { x: number; y: number } {
         const heightOfPin: number = event.source.element.nativeElement.offsetHeight;
         const widthOfPin: number = event.source.element.nativeElement.offsetWidth;
 
-        const width = pinImage.nativeElement.offsetWidth + (widthOfPin / 2);
-        const height = pinImage.nativeElement.offsetHeight + (heightOfPin / 2);
-
         const freeDragPosition = event.source.getFreeDragPosition();
-        console.log('Free drag', freeDragPosition);
 
-        console.log('Height of pin:', heightOfPin);
-        console.log('Width of pin:', widthOfPin);
-
-        console.log(`Width: ${width}`);
-        console.log(`Height: ${height}`);
-
-        console.log(`Drop point X: ${event.dropPoint.x}`);
-        console.log(`Drop point Y: ${event.dropPoint.y}`);
-
-        // prevent overflow from drag container
-        const rawX = freeDragPosition.x;
-        const rawY = freeDragPosition.y;
-
-        console.log(`Raw X: ${rawX}`);
-        console.log(`Raw Y: ${rawY}`);
-
-        let calculatedX: number;
-        let calculatedY: number;
-
-        if (rawX > width) {
-            calculatedX = width - widthOfPin;
-        } else if (rawX < 0) {
-            calculatedX = 0;
-        } else {
-            calculatedX = rawX - (widthOfPin / 2);
-        }
-
-        if (rawY > height) {
-            calculatedY = height - heightOfPin;
-        } else if (rawY < 0) {
-            calculatedY = 0;
-        } else {
-            calculatedY = rawY;
-        }
-
-        console.log('calculated x', calculatedX);
-        console.log('calculated y', calculatedY);
+        const rawX = Math.round(freeDragPosition.x + widthOfPin / 2);
+        const rawY = Math.round(freeDragPosition.y + heightOfPin / 2);
 
         return {
-            //x: Math.round(calculatedX / width * 100),
-            // y: Math.round(calculatedY / height * 100),
-            x: (calculatedX / width) * 100,
-            y: (calculatedY / height) * 100
+            x: rawX,
+            y: rawY
         };
     }
 }
