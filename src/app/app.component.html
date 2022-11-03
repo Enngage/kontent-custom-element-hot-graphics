@@ -93,7 +93,7 @@
                                 <mat-label>Pin text</mat-label>
                                 <input matInput type="text" [(ngModel)]="pin.text" (keyup)="handleInputChange()">
                                 <button *ngIf="pin.text" matSuffix mat-icon-button aria-label="Clear"
-                                    (click)="pin.text=''">
+                                    (click)="clearPinText(pin)">
                                     <mat-icon>close</mat-icon>
                                 </button>
                             </mat-form-field>

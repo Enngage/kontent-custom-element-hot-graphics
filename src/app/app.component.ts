@@ -158,6 +158,12 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         }
     }
 
+    clearPinText(pin: IElementStoredPin): void {
+        pin.text = '';
+        
+        this.saveCustomElementData();
+    }
+
     clearAsset(): void {
         this.assetId = undefined;
         this.assetUrl = undefined;
