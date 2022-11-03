@@ -11,11 +11,7 @@
         <div libFlexColumn libFlexFill>
             <mat-form-field appearance="outline">
                 <mat-label>Asset Id</mat-label>
-                <input [readonly]="true" [formControl]="assetTextControl" matInput type="text" />
-                <button *ngIf="assetTextControl.value" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="clearAsset()">
-                    <mat-icon>close</mat-icon>
-                </button>
+                <input [readonly]="true" [value]="assetId" matInput type="text" />
             </mat-form-field>
         </div>
     </div>
@@ -41,8 +37,7 @@
                         <img [src]="assetUrl" #imageElem />
                         <div class="box editable" [style.top]="0 + '%'" [style.left]="0 + '%'" #pinElem
                             *ngFor="let pin of pins; let index = index" cdkDragBoundary=".w-pin-image" cdkDrag
-                            (cdkDragEnded)="dragEnded($event, pin)"
-                            [cdkDragFreeDragPosition]="getFreeDragPoint(pin, imageElem, pinElem)">
+                            (cdkDragEnded)="dragEnded($event, pin)" [cdkDragFreeDragPosition]="calculateFreeDragPoint(pin, imageElem)">
                             <div class="pin-icon">
                                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"

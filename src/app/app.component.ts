@@ -10,17 +10,24 @@ import { Component } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { CoreComponent } from './core/core.component';
 import { KontentService } from './services/kontent.service';
-import { map } from 'rxjs';
-import { UntypedFormControl } from '@angular/forms';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { CdkDragEnd, Point } from '@angular/cdk/drag-drop';
 
-export interface IPin {
+interface IElementStoredPin {
     x: number;
     y: number;
     text: string;
     imageWidth: number;
     imageHeight: number;
-    freeDragPoint: Point
+}
+
+interface IElementStoredValue {
+    // asset
+    assetUrl: string;
+    assetId: string;
+
+    // pins
+    pins: IElementStoredPin[];
 }
 
 @Component({
@@ -29,7 +36,6 @@ export interface IPin {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent extends CoreComponent implements OnInit, AfterViewChecked {
-
     // default pin state
     private readonly pinHeight: number = 40;
     private readonly pinWidth: number = 40;
@@ -40,16 +46,14 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     public infoMessage?: string;
     public readonly showPinText: boolean = true;
 
+    // data
+    public assetUrl?: string;
+    public assetId?: string;
+    public pins: IElementStoredPin[] = [];
+
     // state
     public disabled: boolean = false;
-
-    //  asset
-    public assetUrl?: string;
-
-    // pins
-    public pins: IPin[] = [];
-
-    public assetTextControl: UntypedFormControl = new UntypedFormControl();
+    private initPins: boolean = false;
 
     @ViewChild('imageElem') imageElementRef?: ElementRef;
 
@@ -58,14 +62,17 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     ngOnInit(): void {
-        this.subscribeToFormControlChanges();
-
         if (this.isKontentContext()) {
             this.kontentService.initCustomElement(
                 (data) => {
                     this.disabled = data.isDisabled;
 
-                    this.assetTextControl.setValue(data.value);
+                    if (data.value) {
+                        const storedData: IElementStoredValue = JSON.parse(data.value);
+
+                        this.assetId = storedData.assetId;
+                        this.assetUrl = storedData.assetUrl;
+                    }
                 },
                 (error) => {
                     console.error(error);
@@ -74,7 +81,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                 }
             );
         } else {
-            this.assetTextControl.setValue('');
+            this.assetId = 'n/a';
             this.assetUrl = environment.kontent.defaultImageUrl;
         }
     }
@@ -96,13 +103,18 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
     addNewPin(): void {
         if (this.imageElementRef) {
+            const imageWidth = this.imageElementRef.nativeElement.offsetWidth;
+            const imageHeight = this.imageElementRef.nativeElement.offsetHeight;
+
+            const x = this.pinWidth / 2;
+            const y = this.pinWidth / 2;
+
             this.pins.push({
-                y: this.pinHeight/ 2,
-                x: this.pinWidth / 2,
-                text: 'n/a',
-                freeDragPoint: this.getFreeDragPoint()
-                imageWidth: this.imageElementRef.nativeElement.offsetWidth,
-                imageHeight: this.imageElementRef.nativeElement.offsetHeight
+                y: y,
+                x: x,
+                text: 'n/a',            
+                imageWidth: imageWidth,
+                imageHeight: imageHeight
             });
         }
     }
@@ -111,7 +123,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         this.pins.splice(index, 1);
     }
 
-    dragEnded(event: CdkDragEnd, pin: IPin): void {
+    dragEnded(event: CdkDragEnd, pin: IElementStoredPin): void {
         if (this.imageElementRef) {
             const percentage = this.calculatePinCoordinatesAfterDrop(event);
 
@@ -123,22 +135,8 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         }
     }
 
-    getFreeDragPoint(pin: IPin, imageRef: HTMLImageElement, pinRef: HTMLDivElement): Point {
-        const heightOfPin: number = pinRef.offsetHeight;
-        const widthOfPin: number = pinRef.offsetWidth;
-
-        const point: Point = {
-            y: (imageRef.offsetHeight * pin.y) / pin.imageHeight - heightOfPin / 2,
-            x: (imageRef.offsetWidth * pin.x) / pin.imageWidth - widthOfPin / 2
-        };
-
-        console.log('test 1', pin, imageRef, pinRef);
-
-        return point;
-    }
-
     clearAsset(): void {
-        this.assetTextControl.setValue(null);
+        this.assetId = undefined;
         this.assetUrl = undefined;
     }
 
@@ -148,18 +146,24 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         if (obs) {
             super.subscribeToObservable(
                 obs.pipe(
-                    map((assetId) => {
+                    switchMap((assetId) => {
                         if (assetId) {
-                            this.assetTextControl.setValue(assetId);
-                            super.markForCheck();
+                            this.assetId = assetId;
+
+                            return this.initAssetDetails(assetId);
                         }
+
+                        return of(undefined);
+                    }),
+                    map(() => {
+                        super.markForCheck();
                     })
                 )
             );
         }
     }
 
-    calculateOffsetForPin(pin: IPin, imageRef: HTMLImageElement): { top: number; left: number } {
+    calculateOffsetForPin(pin: IElementStoredPin, imageRef: HTMLImageElement): { top: number; left: number } {
         return {
             top: (imageRef.offsetHeight * pin.y) / pin.imageHeight,
             left: (imageRef.offsetWidth * pin.x) / pin.imageWidth
@@ -170,23 +174,29 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         return coordinate.toFixed(2);
     }
 
-    private subscribeToFormControlChanges(): void {
-        super.subscribeToObservable(
-            this.assetTextControl.valueChanges.pipe(
-                map((value) => {
-                    this.assetUrl = undefined;
-                    this.kontentService.setValue(value ?? null);
+    calculateFreeDragPoint(pin: IElementStoredPin, imageRef: HTMLImageElement): Point {
+        const point: Point = {
+            y: (imageRef.offsetHeight * pin.y) / pin.imageHeight - this.pinHeight / 2,
+            x: (imageRef.offsetWidth * pin.x) / pin.imageWidth - this.pinWidth / 2
+        };
 
-                    if (value) {
-                        this.initAssetDetails(value);
-                    }
-                    super.markForCheck();
-                })
-            )
-        );
+        return point;
     }
 
-    private initAssetDetails(assetId: string): void {
+    private getValueToStoreInCustomElement(): string | null {
+        if (this.assetId && this.assetUrl) {
+            const valueToStore: IElementStoredValue = {
+                assetId: this.assetId,
+                assetUrl: this.assetUrl,
+                pins: []
+            };
+            return JSON.stringify(valueToStore);
+        }
+
+        return null;
+    }
+
+    private initAssetDetails(assetId: string): Observable<void> {
         const obs = this.kontentService.getAssetDetails(assetId);
 
         if (obs) {
@@ -195,12 +205,22 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                     map((asset) => {
                         if (asset) {
                             this.assetUrl = asset.url;
+
+                            // store data
+                            this.storeCurrentValues();
+
                             super.markForCheck();
                         }
                     })
                 )
             );
         }
+
+        return of(undefined);
+    }
+
+    private storeCurrentValues(): void {
+        this.kontentService.setValue(this.getValueToStoreInCustomElement());
     }
 
     private isKontentContext(): boolean {

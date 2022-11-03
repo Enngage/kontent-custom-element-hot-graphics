@@ -49,13 +49,14 @@ $pinColor: #f05a22;
 }
 
 .mat-form-field-wrapper {
-    margin: 0!important;
-    padding-bottom: 0px!important;
+    margin: 0 !important;
+    padding-bottom: 0px !important;
 }
 
 body {
     font-family: 'Inter', sans-serif;
     color: $textColor;
+    overflow-y: scroll; // this is required to prevent page jumping which caused image to be smaller & pins being rendered incorrectly
 }
 
 a {
