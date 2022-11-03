@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { CoreComponent } from './core/core.component';
 import { KontentService } from './services/kontent.service';
-import { map, Observable, of, switchMap } from 'rxjs';
+import { debounceTime, map, Observable, of, Subject, switchMap } from 'rxjs';
 import { CdkDragEnd, Point } from '@angular/cdk/drag-drop';
 
 interface IElementStoredPin {
@@ -55,6 +55,9 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     public disabled: boolean = false;
     private initPinsAfterImageIsLoaded: boolean = false;
 
+    // store data
+    private _storeData = new Subject<void>();
+
     @ViewChild('imageElem') imageElementRef?: ElementRef;
 
     constructor(private kontentService: KontentService, cdr: ChangeDetectorRef) {
@@ -62,6 +65,8 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     ngOnInit(): void {
+        this.subscribeToStoreData();
+
         if (this.isKontentContext()) {
             this.kontentService.initCustomElement(
                 (data) => {
@@ -125,18 +130,18 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             this.pins.push({
                 y: y,
                 x: x,
-                text: 'n/a',
+                text: '',
                 imageWidth: imageWidth,
                 imageHeight: imageHeight
             });
         }
 
-        this.storeCurrentValues();
+        this.saveCustomElementData();
     }
 
     deletePin(index: number): void {
         this.pins.splice(index, 1);
-        this.storeCurrentValues();
+        this.saveCustomElementData();
     }
 
     dragEnded(event: CdkDragEnd, pin: IElementStoredPin): void {
@@ -149,7 +154,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             pin.imageWidth = this.imageElementRef.nativeElement.offsetWidth;
             pin.imageHeight = this.imageElementRef.nativeElement.offsetHeight;
 
-            this.storeCurrentValues();
+            this.saveCustomElementData();
         }
     }
 
@@ -157,7 +162,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         this.assetId = undefined;
         this.assetUrl = undefined;
 
-        this.storeCurrentValues();
+        this.saveCustomElementData();
     }
 
     handleSelectAsset(): void {
@@ -203,6 +208,21 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         return point;
     }
 
+    handleInputChange(): void {
+        this.saveCustomElementData();
+    }
+
+    private subscribeToStoreData(): void {
+        super.subscribeToObservable(
+            this._storeData.pipe(
+                debounceTime(500), // debounce so that data is not stored on every key stroke when typing
+                map(() => {
+                    this.kontentService.setValue(this.getValueToStoreInCustomElement());
+                })
+            )
+        );
+    }
+
     private getValueToStoreInCustomElement(): string | null {
         if (this.assetId && this.assetUrl) {
             const valueToStore: IElementStoredValue = {
@@ -227,7 +247,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                             this.assetUrl = asset.url;
 
                             // store data
-                            this.storeCurrentValues();
+                            this.saveCustomElementData();
 
                             super.markForCheck();
                         }
@@ -239,8 +259,8 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
         return of(undefined);
     }
 
-    private storeCurrentValues(): void {
-        this.kontentService.setValue(this.getValueToStoreInCustomElement());
+    private saveCustomElementData(): void {
+        this._storeData.next();
     }
 
     private isKontentContext(): boolean {
