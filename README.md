@@ -25,7 +25,30 @@ No configuration required
 
 ## What is Saved
 
-Nothing is saved
+```json
+{
+   "assetId":"fe6b0675-45d7-4429-abf6-90454f233efc",
+   "assetUrl":"https://assets-us-01.kc-usercontent.com/e60bb42c-d7a0-002f-236e-7c27b1224150/b1d7bf6e-af31-439f-8e9a-b5d1779c6fdf/rocket.jpg",
+   "pins":[
+      {
+         "y":74,
+         "x":323,
+         "text":"Test 1",
+         "imageWidth":838,
+         "imageHeight":559
+      },
+      {
+         "y":281,
+         "x":642,
+         "text":"Test 2",
+         "imageWidth":838,
+         "imageHeight":559
+      }
+   ],
+   "originalImageHeight":559,
+   "originalImageWidth":838
+}
+```
 
 ## Development
 

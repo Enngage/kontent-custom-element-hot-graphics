@@ -25,6 +25,8 @@ interface IElementStoredValue {
     // asset
     assetUrl: string;
     assetId: string;
+    originalImageWidth: number;
+    originalImageHeight: number;
 
     // pins
     pins: IElementStoredPin[];
@@ -160,7 +162,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
 
     clearPinText(pin: IElementStoredPin): void {
         pin.text = '';
-        
+
         this.saveCustomElementData();
     }
 
@@ -230,11 +232,13 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     private getValueToStoreInCustomElement(): string | null {
-        if (this.assetId && this.assetUrl) {
+        if (this.assetId && this.assetUrl && this.imageElementRef) {
             const valueToStore: IElementStoredValue = {
                 assetId: this.assetId,
                 assetUrl: this.assetUrl,
-                pins: this.pins
+                pins: this.pins,
+                originalImageHeight: this.imageElementRef.nativeElement.offsetHeight ?? 0,
+                originalImageWidth: this.imageElementRef.nativeElement.offsetWidth ?? 0,
             };
             return JSON.stringify(valueToStore);
         }
