@@ -41,6 +41,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     // default pin state
     private readonly pinHeight: number = 40;
     private readonly pinWidth: number = 40;
+    public readonly showPinCoordinates: boolean = false;
 
     // base
     public loading: boolean = false;
@@ -238,7 +239,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                 assetUrl: this.assetUrl,
                 pins: this.pins,
                 originalImageHeight: this.imageElementRef.nativeElement.offsetHeight ?? 0,
-                originalImageWidth: this.imageElementRef.nativeElement.offsetWidth ?? 0,
+                originalImageWidth: this.imageElementRef.nativeElement.offsetWidth ?? 0
             };
             return JSON.stringify(valueToStore);
         }

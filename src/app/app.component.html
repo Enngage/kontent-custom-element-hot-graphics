@@ -1,80 +1,110 @@
 <div *ngIf="disabled">Pin selector is available only in edit mode</div>
-
 <div *ngIf="!disabled">
-    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
-
-    <div>
-        <button mat-flat-button [color]="'primary'" (click)="handleSelectAsset()">Select asset</button>
-    </div>
-
-    <div libFlexRow class="push-top">
-        <div libFlexColumn libFlexFill>
-            <mat-form-field appearance="outline">
-                <mat-label>Asset Id</mat-label>
-                <input [readonly]="true" [value]="assetId" matInput type="text" />
-            </mat-form-field>
+    <div libFlexRow>
+        <div libFlexColumn>
+            <button mat-flat-button [color]="'primary'" (click)="handleSelectAsset()">Select asset</button>
+        </div>
+        <div libFlexColumn libFlexFill></div>
+        <div libFlexColumn *ngIf="loading">
+            <div class="lds-dual-ring"></div>
         </div>
     </div>
 
     <div libFlexRow class="push-top">
+        <div libFlexColumn [libFlexSize]="'90px'">Asset id:</div>
         <div libFlexColumn libFlexFill>
-            <mat-form-field appearance="outline">
-                <mat-label>Asset Url</mat-label>
-                <input [readonly]="true" [value]="assetUrl" matInput type="text" />
-            </mat-form-field>
+            <input [readonly]="true" [value]="assetId" type="text" />
+        </div>
+    </div>
+
+    <div libFlexRow class="push-top">
+        <div libFlexColumn [libFlexSize]="'90px'">Asset Url:</div>
+        <div libFlexColumn libFlexFill>
+            <input [readonly]="true" [value]="assetUrl" type="text" />
         </div>
     </div>
 
     <div class="push-top">
         <div *ngIf="assetUrl">
             <div>
-                <button mat-flat-button [color]="'accent'" (click)="addNewPin()">Add pin</button>
+                <button mat-flat-button [color]="'accent'" (click)="addNewPin()"><mat-icon>add</mat-icon> Add pin</button>
             </div>
 
             <div libFlexRow class="push-top-lg" [libFlexRowAlign]="'center'">
                 <div libFlexColumn libFlexFill>
                     <div class="w-pin-image" *ngIf="!disabled">
-                        <img [src]="assetUrl" #imageElem  (load)="handleImageLoaded()"/>
-                        <div class="box editable" [style.top]="0 + '%'" [style.left]="0 + '%'" #pinElem
-                            *ngFor="let pin of pins; let index = index" cdkDragBoundary=".w-pin-image" cdkDrag
-                            (cdkDragEnded)="dragEnded($event, pin)" [cdkDragFreeDragPosition]="calculateFreeDragPoint(pin, imageElem)">
+                        <img [src]="assetUrl" #imageElem (load)="handleImageLoaded()" />
+                        <div
+                            class="box editable"
+                            [style.top]="0 + '%'"
+                            [style.left]="0 + '%'"
+                            #pinElem
+                            *ngFor="let pin of pins; let index = index"
+                            cdkDragBoundary=".w-pin-image"
+                            cdkDrag
+                            (cdkDragEnded)="dragEnded($event, pin)"
+                            [cdkDragFreeDragPosition]="calculateFreeDragPoint(pin, imageElem)"
+                        >
                             <div class="pin-icon">
-                                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                    viewBox="0 0 492.452 492.452" style="enable-background: new 0 0 492.452 492.452"
-                                    xml:space="preserve">
-                                    <path id="XMLID_152_" d="M246.181,0C127.095,0,59.533,102.676,84.72,211.82c17.938,77.722,126.259,280.631,161.462,280.631
+                                <svg
+                                    version="1.1"
+                                    id="Capa_1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    x="0px"
+                                    y="0px"
+                                    viewBox="0 0 492.452 492.452"
+                                    style="enable-background: new 0 0 492.452 492.452"
+                                    xml:space="preserve"
+                                >
+                                    <path
+                                        id="XMLID_152_"
+                                        d="M246.181,0C127.095,0,59.533,102.676,84.72,211.82c17.938,77.722,126.259,280.631,161.462,280.631
                                 c32.892,0,143.243-202.975,161.463-280.631C432.996,103.74,365.965,0,246.181,0z M246.232,224.97
                                 c-34.38,0-62.244-27.863-62.244-62.244c0-34.381,27.864-62.244,62.244-62.244c34.38,0,62.244,27.863,62.244,62.244
-                                C308.476,197.107,280.612,224.97,246.232,224.97z" />
+                                C308.476,197.107,280.612,224.97,246.232,224.97z"
+                                    />
                                 </svg>
                             </div>
 
                             <div class="pin-text">
-                                <div *ngIf="showPinText">{{index + 1}}</div>
+                                <div *ngIf="showPinText">{{ index + 1 }}</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="w-pin-image" *ngIf="disabled">
                         <img [src]="assetUrl" #imageElem />
-                        <div class="box transform-50" [style.top]="calculateOffsetForPin(pin, imageElem).top + 'px'"
+                        <div
+                            class="box transform-50"
+                            [style.top]="calculateOffsetForPin(pin, imageElem).top + 'px'"
                             [style.left]="calculateOffsetForPin(pin, imageElem).left + 'px'"
-                            *ngFor="let pin of pins; let index = index">
+                            *ngFor="let pin of pins; let index = index"
+                        >
                             <div class="pin-icon">
-                                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                    viewBox="0 0 492.452 492.452" style="enable-background: new 0 0 492.452 492.452"
-                                    xml:space="preserve">
-                                    <path id="XMLID_152_" d="M246.181,0C127.095,0,59.533,102.676,84.72,211.82c17.938,77.722,126.259,280.631,161.462,280.631
+                                <svg
+                                    version="1.1"
+                                    id="Capa_1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    x="0px"
+                                    y="0px"
+                                    viewBox="0 0 492.452 492.452"
+                                    style="enable-background: new 0 0 492.452 492.452"
+                                    xml:space="preserve"
+                                >
+                                    <path
+                                        id="XMLID_152_"
+                                        d="M246.181,0C127.095,0,59.533,102.676,84.72,211.82c17.938,77.722,126.259,280.631,161.462,280.631
                             c32.892,0,143.243-202.975,161.463-280.631C432.996,103.74,365.965,0,246.181,0z M246.232,224.97
                             c-34.38,0-62.244-27.863-62.244-62.244c0-34.381,27.864-62.244,62.244-62.244c34.38,0,62.244,27.863,62.244,62.244
-                            C308.476,197.107,280.612,224.97,246.232,224.97z" />
+                            C308.476,197.107,280.612,224.97,246.232,224.97z"
+                                    />
                                 </svg>
                             </div>
 
                             <div class="pin-text">
-                                <div *ngIf="showPinText">{{index + 1}}</div>
+                                <div *ngIf="showPinText">{{ index + 1 }}</div>
                             </div>
                         </div>
                     </div>
@@ -82,28 +112,26 @@
             </div>
 
             <div class="push-top-md" *ngIf="pins.length">
-                <div libFlexRow [libFlexRowAlign]="'center'" [libFlexRowGap]="'16px'" [class.push-top]="!first"
-                    *ngFor="let pin of pins; let index = index; let first = first">
+                <div
+                    libFlexRow
+                    [libFlexRowAlign]="'center'"
+                    [libFlexRowGap]="'16px'"
+                    [class.push-top]="!first"
+                    *ngFor="let pin of pins; let index = index; let first = first"
+                >
                     <div libFlexColumn [libFlexSize]="'20px'">
                         <h2>{{ index + 1 }}.</h2>
                     </div>
                     <div libFlexColumn libFlexFill>
                         <ng-container *ngIf="!disabled">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Pin text</mat-label>
-                                <input matInput type="text" [(ngModel)]="pin.text" (keyup)="handleInputChange()">
-                                <button *ngIf="pin.text" matSuffix mat-icon-button aria-label="Clear"
-                                    (click)="clearPinText(pin)">
-                                    <mat-icon>close</mat-icon>
-                                </button>
-                            </mat-form-field>
+                            <textarea [(ngModel)]="pin.text" (keyup)="handleInputChange()"></textarea>
                         </ng-container>
                         <ng-container *ngIf="disabled">
                             {{ pin.text }}
                         </ng-container>
                     </div>
-                    <div libFlexColumn>
-                        <strong> (x: {{roundCoordinate(pin.x)}} , y: {{ roundCoordinate(pin.y)}})</strong>
+                    <div libFlexColumn *ngIf="showPinCoordinates">
+                        <strong> (x: {{ roundCoordinate(pin.x) }}, y: {{ roundCoordinate(pin.y) }})</strong>
                     </div>
                     <div libFlexColumn>
                         <button (click)="deletePin(index)" mat-icon-button>
@@ -113,9 +141,7 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="!assetUrl" class="info-box">
-            No asset is selected
-        </div>
+        <div *ngIf="!assetUrl" class="info-box">No asset is selected</div>
     </div>
 </div>
 

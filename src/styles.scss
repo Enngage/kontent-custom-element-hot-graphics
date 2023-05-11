@@ -26,31 +26,16 @@ $infoBox: #d7e1ff;
 $infoBoxText: $textColor;
 $pinColor: #f05a22;
 
-// material overrides
-.mat-flat-button.mat-primary {
-    background-color: $primaryColor;
-}
+$inputTextColor: #7a7d8c;
+$inputBackgroundColor: #f9f9f9;
+$inputBackgroundFocusColor: #f1f1f1;
 
-.mat-progress-spinner circle,
-.mat-spinner circle {
-    stroke: $primaryColor;
-}
-
-.mat-progress-bar-buffer {
-    background-color: lighten($primaryColor, 40);
-}
-
-.mat-progress-bar-fill::after {
-    background-color: $primaryColor;
-}
-
-.mat-flat-button {
+.mdc-button {
     border-radius: 25px !important;
-}
 
-.mat-form-field-wrapper {
-    margin: 0 !important;
-    padding-bottom: 0px !important;
+    &.mat-primary {
+        background-color: $primaryColor !important;
+    }
 }
 
 body {
@@ -177,5 +162,70 @@ h5 {
         background-color: $primaryColor;
         padding: 6px 12px;
         border-radius: 15px;
+    }
+}
+
+textarea {
+    color: $inputTextColor;
+    font-weight: 500;
+    font-size: 15px;
+    box-sizing: border-box;
+    border: none;
+    background: $inputBackgroundColor;
+    border-radius: 15px;
+    padding: 16px 24px;
+    width: 100%;
+
+    &:focus {
+        background: $inputBackgroundFocusColor;
+        border: none;
+        outline: none;
+    }
+}
+
+input[type='text'],
+input[type='number'],
+input[type='tel'],
+input[type='file'],
+input[type='email'],
+input[type='search'] {
+    position: relative;
+    box-sizing: border-box;
+    background: $inputBackgroundColor;
+    color: $inputTextColor;
+    border: none;
+    font-weight: 500;
+    font-size: 15px;
+    border-radius: 15px;
+    padding: 16px 24px;
+    width: 100%;
+
+    &:focus {
+        background: $inputBackgroundFocusColor;
+        border: none;
+        outline: none;
+    }
+}
+
+.lds-dual-ring {
+    display: inline-block;
+}
+.lds-dual-ring:after {
+    content: ' ';
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    border-radius: 50%;
+    border: 4px solid $primaryColor;
+    border-color: $primaryColor transparent $primaryColor transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
     }
 }
