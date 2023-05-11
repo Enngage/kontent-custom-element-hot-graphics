@@ -94,7 +94,7 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
             );
         } else {
             this.assetId = 'n/a';
-            this.assetUrl = environment.kontent.defaultImageUrl;
+            this.assetUrl = environment.kontent.defaultImageUrl ?? '';
         }
     }
 
