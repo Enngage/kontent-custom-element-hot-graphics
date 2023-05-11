@@ -85,11 +85,13 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
                         // needed to properly calculate coordinates after image is loaded
                         this.initPinsAfterImageIsLoaded = true;
                     }
+
+                    super.markForCheck();
                 },
                 (error) => {
                     console.error(error);
                     this.errorMessage = `Could not initialize custom element. Custom elements can only be embedded in an iframe`;
-                    super.detectChanges();
+                    super.markForCheck();
                 }
             );
         } else {

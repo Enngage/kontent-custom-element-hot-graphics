@@ -175,6 +175,7 @@ textarea {
     border-radius: 15px;
     padding: 16px 24px;
     width: 100%;
+    min-height: 120px;
 
     &:focus {
         background: $inputBackgroundFocusColor;
