@@ -50,8 +50,8 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     public readonly showPinText: boolean = true;
 
     // data
-    public assetUrl?: string;
-    public assetId?: string;
+    public assetUrl: string = '';
+    public assetId: string = '';
     public pins: IElementStoredPin[] = [];
 
     // state
@@ -168,8 +168,8 @@ export class AppComponent extends CoreComponent implements OnInit, AfterViewChec
     }
 
     clearAsset(): void {
-        this.assetId = undefined;
-        this.assetUrl = undefined;
+        this.assetId = '';
+        this.assetUrl = '';
 
         this.saveCustomElementData();
     }
