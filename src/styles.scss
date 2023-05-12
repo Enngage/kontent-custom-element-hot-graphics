@@ -166,6 +166,7 @@ h5 {
 }
 
 textarea {
+    font-family: inherit;
     color: $inputTextColor;
     font-weight: 500;
     font-size: 15px;
@@ -190,6 +191,7 @@ input[type='tel'],
 input[type='file'],
 input[type='email'],
 input[type='search'] {
+    font-family: inherit;
     position: relative;
     box-sizing: border-box;
     background: $inputBackgroundColor;
